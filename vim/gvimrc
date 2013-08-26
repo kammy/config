@@ -1,0 +1,9 @@
+source ~/_vimrc
+
+scriptencoding utf-8
+if has('gui_running')
+  set columns=170
+  set lines=57
+
+  set guifont=Osaka-Mono:h11:cSHIFTJIS
+endif
