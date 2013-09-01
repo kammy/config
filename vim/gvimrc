@@ -1,9 +1,24 @@
-source ~/_vimrc
+"source ~/_vimrc
 
-scriptencoding utf-8
 if has('gui_running')
-  set columns=170
-  set lines=57
+  set lines=58
+  set columns=190
+"  set antialias
+  set noimdisable
+"  set guioptions=Mc
 
-  set guifont=Osaka-Mono:h11:cSHIFTJIS
+  colorscheme zenburn
+  set background=dark
+  " IMEオンでカーソルの色を変える
+  if has('multi_byte_ime')
+    highlight CursorIM guifg=NONE guibg=Green
+  endif
+
+  if has('win32')
+    let &guifont=iconv('Osaka－等幅:h10.5:cSHIFTJIS', &encoding, 'cp932')
+  else
+    set transparency=2
+    let &guifont=Osaka-Mono\ for\ Powerline:h15
+  endif
 endif
+
