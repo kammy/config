@@ -5,7 +5,7 @@
 " Date: 2013-09-01
 "
 
-" initialize :"{{{1
+" initialize:"{{{1
 
 scriptencoding utf-8
 " enable no Vi compatible commands.
@@ -93,7 +93,7 @@ endif
 
 " }}}
 "-----------------------------------------------------------------------------
-" plugins "{{{1
+" plugins:"{{{1
 let g:neobundle#enable_tail_path = 1
 let g:neobundle#default_options = {
   \ 'default' : { 'overwrite' : 0 },
@@ -106,10 +106,6 @@ NeoBundle 'vim-scripts/Zenburn' " {{{2
 "}}}
 NeoBundle 'itchyny/lightline.vim' " {{{2
 "}}}
-
-NeoBundle 'minibufexpl.vim' " {{{2
-"}}}
-
 NeoBundle 'Shougo/unite.vim', '', 'default' " {{{2
 call neobundle#config('unite.vim', {
   \ 'lazy' : 1,
@@ -121,15 +117,20 @@ call neobundle#config('unite.vim', {
 "}}}
 NeoBundle 'Shougo/unite-session', '', 'default' " {{{2
 "}}}
+NeoBundle 'tpope/vim-fugitive' " {{{2
+"}}}
+NeoBundle 'gregsexton/gitv' " {{{2
+"}}}
 
 " end of plugins {{{1
+
 filetype plugin indent on
 syntax enable
 
 NeoBundleCheck
 "}}}
 "-----------------------------------------------------------------------------
-" plugin settings {{{1
+" plugin settings:"{{{1
 " unite.vim {{{2
 
 
@@ -141,7 +142,7 @@ NeoBundleCheck
 "}}}
 " }}}
 "-----------------------------------------------------------------------------
-" encoding "{{{1
+" encoding:"{{{1
 
 set encoding=utf-8
 
@@ -233,7 +234,7 @@ set fileformats=unix,dos,mac
 set ambiwidth=double
 "}}}
 "-----------------------------------------------------------------------------
-" search "{{{1
+" search:"{{{1
 " Ignore the case of normal letters.
 set ignorecase
 " If the search pattern contains upper case characters, override ignorecase option.
@@ -252,7 +253,7 @@ set wrapscan
 
 "}}}
 "-----------------------------------------------------------------------------
-" edit "{{{1
+" edit:"{{{1
 
 " Smart insert tab setting.
 set smarttab
@@ -260,7 +261,6 @@ set smarttab
 set expandtab
 " Round indent by shiftwidth.
 set shiftround
-
 " Enable modeline.
 set modeline
 
@@ -350,25 +350,25 @@ set backup
 set backupdir=~/.vim/backup
 " Increase history amount.
 set history=1000
+" Report changes.
+set report=0
 
 " Use autofmt.
 set formatexpr=autofmt#japanese#formatexpr()
 
-" 前回終了したカーソル行に移動
-autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g`\"" | endif
-
 "}}}
 "-----------------------------------------------------------------------------
-" view {{{1
+" view:"{{{1
+
 set t_Co=256
 
+" tab
+set et ts=4 sts=4 sw=4
 " color
 colorscheme zenburn
 set background=dark
-
 " Show line number.
 set number
-
 " Show <TAB> and <CR>
 set list
 if s:is_windows
@@ -392,6 +392,11 @@ set showcmd
 set title
 " Title length.
 set titlelen=95
+let &titlestring="
+      \ %{expand('%:p:.:~')}%(%m%r%w%)
+      \ %<\(%{".s:SID_PREFIX()."strwidthpart(
+      \ fnamemodify(getcwd(), ':~'),
+      \ &columns-len(expand('%:p:.:~')))}\) - VIM"
 " show cursor line. column
 set cursorline
 set cursorcolumn
@@ -400,7 +405,9 @@ set cursorcolumn
 set shortmess=aTI
 
 " Set tabline.
-function! s:my_tabline()  "{{{
+set showtabline=2 " display tab always
+" tabline label {{{2
+function! s:TabLabel()
   let s = ''
 
   for i in range(1, tabpagenr('$'))
@@ -429,13 +436,13 @@ function! s:my_tabline()  "{{{
 
   let s .= '%#TabLineFill#%T%=%#TabLine#'
   return s
-endfunction "}}}
-let &tabline = '%!'. s:SID_PREFIX() . 'my_tabline()'
-set showtabline=2
+endfunction
+let &tabline = '%!'. s:SID_PREFIX() . 'TabLabel()'
+"}}}
 
 " Turn down a long line appointed in 'breakat'
+let &showbreak='↳'
 set linebreak
-set showbreak=>\
 set breakat=\ \ ;:,!?
 
 " Display candidate supplement.
@@ -494,6 +501,9 @@ if v:version >= 703
   set colorcolumn=79
 endif
 
+" tree-style filer
+let g:netrw_liststyle=3
+
 " Don't redraw while macro executing.
 set lazyredraw
 
@@ -511,7 +521,7 @@ autocmd MyAutoCmd FileType *
 
 " }}}
 "-----------------------------------------------------------------------------
-" syntax {{{1
+" syntax:"{{{1
 
 set autoindent smartindent
 
@@ -585,7 +595,7 @@ let g:SimpleJsIndenter_CaseIndentLevel = -1
 
 "}}}
 "-----------------------------------------------------------------------------
-" gui setting {{{1
+" gui settings:"{{{1
 if has('gui_running')
   set lines=58
   set columns=190
@@ -607,12 +617,39 @@ if has('gui_running')
 endif
 "}}}
 "-----------------------------------------------------------------------------
-" keymappings {{{1
+" keymappings:"{{{1
+
+" swap ; :
+noremap ; :
+noremap : ;
+
+" prev buffer
+nnoremap <silent><Space>b :bp<CR>
+" next buffer
+nnoremap <silent><Space>n :bn<CR>
 
 " Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
 " which is the default
 nnoremap Y y$
 
+" Tab operations {{{2
+nnoremap [Tab] <Nop>
+nmap t [Tab]
+" Tab jump
+" t1 で1番左のタブ、t2 で1番左から2番目のタブにジャンプ
+for n in range(1, 9)
+  execute 'nnoremap <silent> [Tab]'.n  ':<C-u>tabnext'.n.'<CR>'
+endfor
+
+" tc 新しいタブを一番右に作る
+nnoremap <silent> [Tab]c :tablast <bar> tabnew<CR>
+" tx タブを閉じる
+nnoremap <silent> [Tab]x :tabclose<CR>
+" tn 次のタブ
+nnoremap <silent> [Tab]n :tabnext<CR>
+" tp 前のタブ
+nnoremap <silent> [Tab]p :tabprevious<CR>
+"}}}
 " Visual mode keymappings: "{{{2
 " <TAB>: indent.
 xnoremap <TAB> >
@@ -749,7 +786,7 @@ nnoremap Q <Nop>
 "}}}
 "-----------------------------------------------------------------------------
 " misc
-" Reload .vimrc and .gvimrc automatically. {{{2
+" Reload .vimrc and .gvimrc automatically. {{{1
 " http://vim-users.jp/2009/09/hack74/
 if !has('gui_running') && !s:is_windows
   autocmd MyAutoCmd BufWritePost $MYVIMRC nested source $MYVIMRC |
@@ -776,32 +813,109 @@ function! s:set_syntax_of_user_defined_commands()
   execute 'syntax keyword vimCommand ' . command_names
 endfunction
 "}}}
-"-----------------------------------------------------------------------------
-" 暫定 {{{1
+" Load .gvimrc after .vimrc edited at GVim. {{{
+nnoremap <silent> <Space>rv :<C-u>source $MYVIMRC \| if has('gui_running') \| source $MYGVIMRC \| endif <CR>
+nnoremap <silent> <Space>rg :<C-u>source $MYGVIMRC<CR>
+"}}}
+" 前回終了したカーソル行に移動 {{{1
+autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g`\"" | endif
+"}}}
+""---------------------------------------------------------------------------
+" commands:{{{1
+"}}}
+""---------------------------------------------------------------------------
+" functions:"{{{1
+"
+function! s:strchars(str)
+  return len(substitute(a:str, '.', 'x', 'g'))
+endfunction
 
-" swap ; :
-noremap ; :
-noremap : ;
+function! s:strwidthpart(str, width)
+  if a:width <= 0
+    return ''
+  endif
+  let ret = a:str
+  let width = s:wcswidth(a:str)
+  while width > a:width
+    let char = matchstr(ret, '.$')
+    let ret = ret[: -1 - len(char)]
+    let width -= s:wcswidth(char)
+  endwhile
 
-setl tabstop=4 sts=4 sw=4
+  return ret
+endfunction
+function! s:strwidthpart_reverse(str, width)
+  if a:width <= 0
+    return ''
+  endif
+  let ret = a:str
+  let width = s:wcswidth(a:str)
+  while width > a:width
+    let char = matchstr(ret, '^.')
+    let ret = ret[len(char) :]
+    let width -= s:wcswidth(char)
+  endwhile
 
-" 前のバッファに移動
-nnoremap <silent><Space>b :bp<CR>
-" 次のバッファに移動
-nnoremap <silent><Space>n :bn<CR>
+  return ret
+endfunction
+
+if v:version >= 703
+  " Use builtin function.
+  function! s:wcswidth(str)
+    return strwidth(a:str)
+  endfunction
+else
+  function! s:wcswidth(str)
+    if a:str =~# '^[\x00-\x7f]*$'
+      return strlen(a:str)
+    end
+
+    let mx_first = '^\(.\)'
+    let str = a:str
+    let width = 0
+    while 1
+      let ucs = char2nr(substitute(str, mx_first, '\1', ''))
+      if ucs == 0
+        break
+      endif
+      let width += s:_wcwidth(ucs)
+      let str = substitute(str, mx_first, '', '')
+    endwhile
+    return width
+  endfunction
+
+  " UTF-8 only.
+  function! s:_wcwidth(ucs)
+    let ucs = a:ucs
+    if (ucs >= 0x1100
+          \  && (ucs <= 0x115f
+          \  || ucs == 0x2329
+          \  || ucs == 0x232a
+          \  || (ucs >= 0x2e80 && ucs <= 0xa4cf
+          \      && ucs != 0x303f)
+          \  || (ucs >= 0xac00 && ucs <= 0xd7a3)
+          \  || (ucs >= 0xf900 && ucs <= 0xfaff)
+          \  || (ucs >= 0xfe30 && ucs <= 0xfe6f)
+          \  || (ucs >= 0xff00 && ucs <= 0xff60)
+          \  || (ucs >= 0xffe0 && ucs <= 0xffe6)
+          \  || (ucs >= 0x20000 && ucs <= 0x2fffd)
+          \  || (ucs >= 0x30000 && ucs <= 0x3fffd)
+          \  ))
+      return 2
+    endif
+    return 1
+  endfunction
+endif
+"}}}-----------------------------------------------------------------------------
+""---------------------------------------------------------------------------
+" temp {{{1
 
 " Completion setting.
 set completeopt=menuone
 " Don't complete from other buffer.
 set complete=.
 "set complete=.,w,b,i,t
-
-" Report changes.
-set report=0
-
 "}}}
-
-NeoBundleCheck
 
 set secure
 
