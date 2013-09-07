@@ -100,20 +100,46 @@ let g:neobundle#default_options = {
   \ }
 
 call neobundle#rc(s:neobundle_dir)
-NeoBundleFetch 'Shougo/neobundle.vim', '', 'default'
+NeoBundleFetch 'Shougo/neobundle.vim'
 
 NeoBundle 'vim-scripts/Zenburn' " {{{2
 "}}}
 NeoBundle 'itchyny/lightline.vim' " {{{2
 "}}}
 
+NeoBundle 'minibufexpl.vim' " {{{2
 "}}}
+
+NeoBundle 'Shougo/unite.vim', '', 'default' " {{{2
+call neobundle#config('unite.vim', {
+  \ 'lazy' : 1,
+  \ 'autoload' : {
+  \   'commands' : [{ 'name' : 'Unite',
+  \                   'complete' : 'customlist,unite#complete_source'},
+  \                 'UniteWithBufferDir', 'UniteWithCursorWord', 'UniteWithInput']
+  \ }})
+"}}}
+NeoBundle 'Shougo/unite-session', '', 'default' " {{{2
+"}}}
+
 " end of plugins {{{1
 filetype plugin indent on
 syntax enable
 
 NeoBundleCheck
 "}}}
+"-----------------------------------------------------------------------------
+" plugin settings {{{1
+" unite.vim {{{2
+
+
+" save and load session automatically
+"let g:unite_source_session_enable_auto_save = 1
+"autocmd MyAutoCmd VimEnter * UniteSessionLoad
+
+"
+"}}}
+" }}}
 "-----------------------------------------------------------------------------
 " encoding "{{{1
 
@@ -217,14 +243,12 @@ set incsearch
 " highlight search result.
 set hlsearch
 " disable highlight ESCx2
-nmap <ESC><ESC> ;<C-u>set nohlsearch<CR>
+nnoremap <ESC><ESC> :nohl<CR>
+" Map <C-L> (redraw screen) to also turn off search highlighting until the
+" next search
+nnoremap <C-L> :nohl<CR><C-L>
 " Searches wrap around the end of the file.
 set wrapscan
-
-nnoremap / :<C-u>set hlsearch<Return>/
-nnoremap ? :<C-u>set hlsearch<Return>?
-nnoremap * :<C-u>set hlsearch<Return>*
-nnoremap # :<C-u>set hlsearch<Return>#
 
 "}}}
 "-----------------------------------------------------------------------------
@@ -327,35 +351,8 @@ set backupdir=~/.vim/backup
 " Increase history amount.
 set history=1000
 
-
 " Use autofmt.
 set formatexpr=autofmt#japanese#formatexpr()
-
-" Reload .vimrc and .gvimrc automatically.
-if !has('gui_running') && !s:is_windows
-  autocmd MyAutoCmd BufWritePost .vimrc nested source $MYVIMRC |
-        \ call s:set_syntax_of_user_defined_commands() |
-        \ echo "source $MYVIMRC"
-else
-  autocmd MyAutoCmd BufWritePost $MYVIMRC source $MYVIMRC |
-        \ call s:set_syntax_of_user_defined_commands() |
-        \ if has('gui_running') | source $MYGVIMRC | echo "source $MYVIMRC"
-  autocmd MyAutoCmd BufWritePost .gvimrc
-        \ if has('gui_running') | source $MYGVIMRC | echo "source $MYGVIMRC"
-endif
-
-function! s:set_syntax_of_user_defined_commands()
-  redir => _
-  silent! command
-  redir END
-
-  let command_names = join(map(split(_, '\n')[1:],
-        \ "matchstr(v:val, '[!\"b]*\\s\\+\\zs\\u\\w*\\ze')"))
-
-  if command_names == '' | return | endif
-
-  execute 'syntax keyword vimCommand ' . command_names
-endfunction
 
 " 前回終了したカーソル行に移動
 autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") | exe "normal g`\"" | endif
@@ -390,7 +387,7 @@ set laststatus=2
 " Height of command line.
 set cmdheight=2
 " Not Show command on statusline.
-set noshowcmd
+set showcmd
 " Show title.
 set title
 " Title length.
@@ -442,12 +439,12 @@ set showbreak=>\
 set breakat=\ \ ;:,!?
 
 " Display candidate supplement.
-set nowildmenu
+set wildmenu
 set wildmode=list:longest,full
 
 " Disable bell.
+set visualbell
 set t_vb=
-set novisualbell
 
 " Display all the information of the tag by the supplement of the Insert mode.
 set showfulltag
@@ -479,13 +476,16 @@ set previewheight=8
 set helpheight=20
 
 " Maintain a current line at the time of movement as much as possible.
-"set nostartofline
-set startofline
+set nostartofline
 
 " When a line is long, do not omit it in @.
 set display=lastline
 " Display an invisible letter with hex format.
-"set display+=uhex
+set display+=uhex
+
+
+" Minimal number of screen lines to keep above and below the cursor.
+set scrolloff=2
 
 if v:version >= 703
   " For conceal.
@@ -500,24 +500,14 @@ set lazyredraw
 " View setting.
 set viewdir=~/.vim/view viewoptions-=options viewoptions+=slash,unix
 
+" {{{2 Display Zenkaku Space
+highlight ZenkakuSpace cterm=underline ctermfg=darkgrey gui=underline guibg=darkgray
+autocmd MyAutoCmd VimEnter,WinEnter * match ZenkakuSpace /　/
+" }}}
+
 " Disable automatically insert comment.
 autocmd MyAutoCmd FileType *
       \ setl formatoptions-=ro | setl formatoptions+=mM
-
-" {{{2 Zenkaku Space
-function! ZenkakuSpace()
-  highlight ZenkakuSpace cterm=underline ctermfg=darkgrey gui=underline guibg=darkgrey
-endfunction
-
-if has('syntax')
-  augroup ZenkakuSpace
-    autocmd!
-    autocmd ColorScheme * call ZenkakuSpace()
-    autocmd VimEnter,WinEnter * match ZenkakuSpace /　/
-  augroup End
-  call ZenkakuSpace()
-endif
-" }}}
 
 " }}}
 "-----------------------------------------------------------------------------
@@ -595,44 +585,20 @@ let g:SimpleJsIndenter_CaseIndentLevel = -1
 
 "}}}
 "-----------------------------------------------------------------------------
-" 暫定 {{{1
-
-" swap ; :
-noremap ; :
-noremap : ;
-
-setl tabstop=4 sts=4 sw=4
-
-" 前のバッファに移動
-nnoremap <silent><Space>b :bp<CR>
-" 次のバッファに移動
-nnoremap <silent><Space>n :bn<CR>
-
-" Completion setting.
-set completeopt=menuone
-" Don't complete from other buffer.
-set complete=.
-"set complete=.,w,b,i,t
-
-" Report changes.
-set report=0
-
-"}}}
-" {{{1
+" gui setting {{{1
 if has('gui_running')
   set lines=58
   set columns=190
 "  set antialias
   set noimdisable
-"  set guioptions=Mc
+  set guioptions=aceMt
 
-  set background=dark
   " IMEオンでカーソルの色を変える
   if has('multi_byte_ime')
     highlight CursorIM guifg=NONE guibg=Green
   endif
 
-  if has('win32')
+  if s:is_windows
     let &guifont=iconv('Osaka－等幅:h10.5:cSHIFTJIS', &encoding, 'cp932')
   else
     set transparency=2
@@ -640,9 +606,46 @@ if has('gui_running')
   endif
 endif
 "}}}
+"-----------------------------------------------------------------------------
+" keymappings {{{1
 
-" keymappings"{{{1
+" Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
+" which is the default
+nnoremap Y y$
 
+" Visual mode keymappings: "{{{2
+" <TAB>: indent.
+xnoremap <TAB> >
+" <S-TAB>: unindent.
+xnoremap <S-TAB> <
+
+" Indent
+nnoremap > >>
+nnoremap < <<
+xnoremap > >gv
+xnoremap < <gv
+"}}}
+" Command-Line mode keymappings:"{{{2
+" <C-a>, A: move to head.
+cnoremap <C-a>          <Home>
+" <C-b>: previous char.
+cnoremap <C-b>          <Left>
+" <C-d>: delete char.
+cnoremap <C-d>          <Del>
+" <C-e>, E: move to end.
+cnoremap <C-e>          <End>
+" <C-f>: next char.
+cnoremap <C-f>          <Right>
+" <C-n>: next history.
+cnoremap <C-n>          <Down>
+" <C-p>: previous history.
+cnoremap <C-p>          <Up>
+" <C-k>, K: delete to end.
+cnoremap <C-k> <C-\>e getcmdpos() == 1 ?
+      \ '' : getcmdline()[:getcmdpos()-2]<CR>
+" <C-y>: paste.
+cnoremap <C-y>          <C-r>*
+"}}}
 " Windows and buffers(High priority) "{{{2
 " The prefix key.
 nnoremap    [Window]   <Nop>
@@ -737,15 +740,68 @@ endfunction
 "}}}
 
 "}}}
-
 " Disable Keymappings "{{{2
 nnoremap ZZ <Nop>
 nnoremap ZQ <Nop>
 nnoremap Q <Nop>
 
 "}}}
+"}}}
+"-----------------------------------------------------------------------------
+" misc
+" Reload .vimrc and .gvimrc automatically. {{{2
+" http://vim-users.jp/2009/09/hack74/
+if !has('gui_running') && !s:is_windows
+  autocmd MyAutoCmd BufWritePost $MYVIMRC nested source $MYVIMRC |
+        \ call s:set_syntax_of_user_defined_commands() |
+        \ echo "source $MYVIMRC"
+else
+  autocmd MyAutoCmd BufWritePost $MYVIMRC source $MYVIMRC |
+        \ call s:set_syntax_of_user_defined_commands() |
+        \ if has('gui_running') | source $MYGVIMRC | echo "source $MYVIMRC"
+  autocmd MyAutoCmd BufWritePost $MYGVIMRC
+        \ if has('gui_running') | source $MYGVIMRC | echo "source $MYGVIMRC"
+endif
+
+function! s:set_syntax_of_user_defined_commands()
+  redir => _
+  silent! command
+  redir END
+
+  let command_names = join(map(split(_, '\n')[1:],
+        \ "matchstr(v:val, '[!\"b]*\\s\\+\\zs\\u\\w*\\ze')"))
+
+  if command_names == '' | return | endif
+
+  execute 'syntax keyword vimCommand ' . command_names
+endfunction
+"}}}
+"-----------------------------------------------------------------------------
+" 暫定 {{{1
+
+" swap ; :
+noremap ; :
+noremap : ;
+
+setl tabstop=4 sts=4 sw=4
+
+" 前のバッファに移動
+nnoremap <silent><Space>b :bp<CR>
+" 次のバッファに移動
+nnoremap <silent><Space>n :bn<CR>
+
+" Completion setting.
+set completeopt=menuone
+" Don't complete from other buffer.
+set complete=.
+"set complete=.,w,b,i,t
+
+" Report changes.
+set report=0
 
 "}}}
+
+NeoBundleCheck
 
 set secure
 
