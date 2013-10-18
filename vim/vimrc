@@ -121,6 +121,8 @@ NeoBundle 'tpope/vim-fugitive' " {{{2
 "}}}
 NeoBundle 'gregsexton/gitv' " {{{2
 "}}}
+NeoBundle 'kchmck/vim-coffee-script' " {{{2
+"}}}
 " end of plugins {{{1
 
 filetype plugin indent on
