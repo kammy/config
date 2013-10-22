@@ -104,8 +104,6 @@ NeoBundleFetch 'Shougo/neobundle.vim'
 
 NeoBundle 'vim-scripts/Zenburn' " {{{2
 "}}}
-NeoBundle 'itchyny/lightline.vim' " {{{2
-"}}}
 NeoBundle 'Shougo/unite.vim', '', 'default' " {{{2
 call neobundle#config('unite.vim', {
   \ 'lazy' : 1,
@@ -122,6 +120,26 @@ NeoBundle 'tpope/vim-fugitive' " {{{2
 NeoBundle 'gregsexton/gitv' " {{{2
 "}}}
 NeoBundle 'kchmck/vim-coffee-script' " {{{2
+"}}}
+" color scheme {{{2
+if has('gui_running')
+  NeoBundle 'itchyny/lightline.vim'
+
+  colorscheme zenburn
+  set t_Co=256
+  set background=dark
+else
+  NeoBundle 'altercation/vim-colors-solarized'
+
+  colorscheme solarized
+  set t_Co=256
+  set background=light
+  let g:Powerline_colorscheme='solarized'
+  let g:solarized_termcolors=256
+  let g:solarized_italic=0
+  let g:solarized_contrast="high"
+  hi SpecialKey ctermbg=none
+endif
 "}}}
 " end of plugins {{{1
 
@@ -499,9 +517,6 @@ set t_Co=256
 
 " tab
 set et ts=4 sts=4 sw=4
-" color
-colorscheme zenburn
-set background=dark
 " Show line number.
 set number
 " Show <TAB> and <CR>
