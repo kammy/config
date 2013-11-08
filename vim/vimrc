@@ -115,12 +115,40 @@ call neobundle#config('unite.vim', {
 "}}}
 NeoBundle 'Shougo/unite-session', '', 'default' " {{{2
 "}}}
+" Shougo/vimproc {{{2
+if v:version > 702
+  NeoBundle 'Shougo/vimproc', { 'build' : {
+        \ 'cygwin' : 'make -f make_cygwin.mak',
+        \ 'mac'    : 'make -f make_mac.mak',
+        \ 'unix'   : 'make -f make_unix.mak'
+        \ },
+  \ }
+endif
+"}}}
 NeoBundle 'tpope/vim-fugitive' " {{{2
 "}}}
 NeoBundle 'gregsexton/gitv' " {{{2
 "}}}
 NeoBundle 'kchmck/vim-coffee-script' " {{{2
 "}}}
+NeoBundle 'thinca/vim-quickrun' "{{{2
+
+let g:quickrun_config = {}
+let g:quickrun_config['*'] = {
+\     'runner': 'vimproc',
+\     'runner/vimproc/updatetime': 40,
+\     'hook/time/enable': '1'
+\ }
+"}}}
+NeoBundle 'thinca/vim-ref' " {{{2
+
+" download from http://jp.php.net/download-docs.php
+let g:ref_phpmanual_path = '/home/shuichi-kura/docs/reference/php-chunked-xhtml/'
+let g:ref_phpmanual_cmd = 'w3m -dump %s'
+
+" :Ref phpmanual mb_*
+" or shift-k
+
 " color scheme {{{2
 if has('gui_running')
   NeoBundle 'itchyny/lightline.vim'
@@ -417,6 +445,10 @@ set shiftround
 " Enable modeline.
 set modeline
 
+if has('kaoriya') && has('gui_running')
+    set macmeta
+endif
+
 " Use clipboard register.
 if has('unnamedplus')
   set clipboard& clipboard+=unnamedplus,autoselect
@@ -524,7 +556,8 @@ set list
 if s:is_windows
   set listchars=tab:>-,trail:-,extends:>,precedes:<
 else
-  set listchars=tab:▸\ ,trail:-,extends:»,precedes:«,nbsp:%,eol:↲
+"  set listchars=tab:▸\ ,trail:-,extends:»,precedes:«,nbsp:%,eol:↲
+  set listchars=tab:▸\ ,extends:»,precedes:«,nbsp:%,eol:↲
 endif
 " Show ruler
 set ruler
@@ -669,6 +702,12 @@ autocmd MyAutoCmd VimEnter,WinEnter * match ZenkakuSpace /　/
 autocmd MyAutoCmd FileType *
       \ setl formatoptions-=ro | setl formatoptions+=mM
 
+"
+augroup MyAutoCmd
+  autocmd VimEnter,WinEnter,ColorScheme * highlight TrailingSpaces term=underline guibg=Darkred ctermbg=Red
+  autocmd VimEnter,WinEnter,BufRead * match TrailingSpaces /\s\+$/
+augroup END
+
 " }}}
 "-----------------------------------------------------------------------------
 " syntax:"{{{1
@@ -762,7 +801,7 @@ if has('gui_running')
     let &guifont=iconv('Osaka－等幅:h10.5:cSHIFTJIS', &encoding, 'cp932')
   else
     set antialias
-    set transparency=2
+    set transparency=0
     set lines=72
     set columns=239
     set guifont=Osaka-Mono\ for\ Powerline:h15
@@ -852,7 +891,7 @@ nmap    <C-w> [Window]
 nnoremap <silent> [Window]p  :<C-u>call <SID>split_nicely()<CR>
 nnoremap <silent> [Window]v  :<C-u>vsplit<CR>
 nnoremap <silent> [Window]c  :<C-u>call <sid>smart_close()<CR>
-nnoremap <silent> -  :<C-u>call <SID>smart_close()<CR>
+nnoremap <silent> -          :<C-u>call <SID>smart_close()<CR>
 nnoremap <silent> [Window]o  :<C-u>only<CR>
 nnoremap <silent> [Window]b  :<C-u>Thumbnail<CR>
 
@@ -999,6 +1038,20 @@ function! s:cd_buffer_dir()
 
   cd `=dir`
 endfunction"}}}
+
+" 透過切り替え
+let b:transparency = 0
+function! s:transparent_window()
+  let b:transparency = exists('b:transparency') ? !b:transparency :1
+  if b:transparency
+    setlocal transparency=40
+  else
+    setlocal transparency=0
+  endif
+endfunction
+if has('gui_running')
+  nnoremap \t :call <SID>transparent_window()<CR>
+endif
 ""---------------------------------------------------------------------------
 " commands:{{{1
 "}}}
