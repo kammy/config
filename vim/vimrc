@@ -501,12 +501,12 @@ set updatetime=1000
 set scrolljump=30
 
 " Set swap directory.
-set directory-=.
+set directory=~/.vim/tmp
 
 if has('persistent_undo')
   " Set undofile.
   set undofile
-  let &undodir=&directory
+  set undodir=~/.vim/undo
 endif
 
 " Set tags file.
