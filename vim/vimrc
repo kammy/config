@@ -763,6 +763,9 @@ augroup MyAutoCmd
         \ setlocal path+=./;/
   autocmd FileType php setlocal path+=/usr/local/share/pear
   autocmd FileType apache setlocal path+=./;/
+
+  autocmd FileType smarty exec('set dictionary=$DOTVIM/syntax/smarty.vim')
+  autocmd FileType smarty set complete+=k
 augroup END
 
 " PHP
