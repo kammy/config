@@ -237,8 +237,6 @@ let g:lightline = {
         \   'syntastic': 'SyntasticStatuslineFlag',
         \   'charcode': 'MyCharCode',
         \ },
-        \ 'separator': {'left': '⮀', 'right': '⮂'},
-        \ 'subseparator': {'left': '⮁', 'right': '⮃'}
         \ }
 
 function! MyModified()
