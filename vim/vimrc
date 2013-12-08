@@ -790,6 +790,7 @@ if has('gui_running')
   set noimdisable
   set background=dark
   set guioptions=aceMt
+  set antialias
 
   " IMEオンでカーソルの色を変える
   if has('multi_byte_ime') || has('gui_macvim')
@@ -797,11 +798,11 @@ if has('gui_running')
   endif
 
   if s:is_windows
+    set transparency=220
     set lines=58
-    set columns=190
-    let &guifont=iconv('Osaka－等幅:h10.5:cSHIFTJIS', &encoding, 'cp932')
+    set columns=180
+    set guifont=Osaka-Mono\ for\ Powerline:h11
   else
-    set antialias
     set transparency=0
     set lines=72
     set columns=239
