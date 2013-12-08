@@ -443,7 +443,7 @@ set shiftround
 " Enable modeline.
 set modeline
 
-if has('kaoriya') && has('gui_running')
+if s:is_mac && has('kaoriya') && has('gui_running')
     set macmeta
 endif
 
