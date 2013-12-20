@@ -894,6 +894,7 @@ nnoremap <silent> [Window]p  :<C-u>call <SID>split_nicely()<CR>
 nnoremap <silent> [Window]v  :<C-u>vsplit<CR>
 nnoremap <silent> [Window]c  :<C-u>call <sid>smart_close()<CR>
 nnoremap <silent> -          :<C-u>call <SID>smart_close()<CR>
+nnoremap <silent> _          :<C-u>call <SID>close_buffer()<CR>
 nnoremap <silent> [Window]o  :<C-u>only<CR>
 nnoremap <silent> [Window]b  :<C-u>Thumbnail<CR>
 
@@ -903,6 +904,12 @@ nnoremap <silent> [Window]r  :<C-u>wincmd r<CR>
 " A .vimrc snippet that allows you to move around windows beyond tabs
 nnoremap <silent> <Tab> :call <SID>NextWindow()<CR>
 nnoremap <silent> <S-Tab> :call <SID>PreviousWindowOrTab()<CR>
+
+function! s:close_buffer()
+  if winnr('$') != 1
+    bdelete!
+  endif
+endfunction
 
 function! s:smart_close()
   if winnr('$') != 1
