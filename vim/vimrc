@@ -651,7 +651,8 @@ if s:is_windows
   set listchars=tab:>-,trail:-,extends:>,precedes:<
 else
 "  set listchars=tab:▸\ ,trail:-,extends:»,precedes:«,nbsp:%,eol:↲
-  set listchars=tab:▸\ ,extends:»,precedes:«,nbsp:%,eol:↲
+"  set listchars=tab:▸\ ,extends:»,precedes:«,nbsp:%,eol:↲
+  set listchars=tab:>\ ,extends:»,precedes:«,nbsp:%,eol:↲
 endif
 " Show ruler
 set ruler
