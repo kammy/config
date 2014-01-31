@@ -1279,13 +1279,14 @@ endif
 " Completion setting.
 set completeopt=menuone
 " Don't complete from other buffer.
-set complete=.
-"set complete=.,w,b,i,t
+"set complete=.
+set complete=.,w,b,k,i,t,]
 
 " vimにcoffeeファイルタイプを認識させる
 au BufRead,BufNewFile,BufReadPre *.coffee   set filetype=coffee
 " インデントを設定
 autocmd FileType coffee     setlocal sw=2 sts=2 ts=2 et
+autocmd FileType javascript setlocal sw=2 sts=2 ts=2 et
 
 "}}}
 
