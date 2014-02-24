@@ -8,8 +8,6 @@
 " initialize:"{{{1
 
 scriptencoding utf-8
-" enable no Vi compatible commands.
-set nocompatible
 
 " Anywhere SID.
 function! s:SID_PREFIX()
@@ -165,6 +163,7 @@ let g:ref_phpmanual_cmd = 'w3m -dump %s'
 " or shift-k
 
 " color scheme {{{2
+syntax enable
 if has('gui_running')
   NeoBundle 'itchyny/lightline.vim'
 
@@ -187,7 +186,6 @@ endif
 " end of plugins {{{1
 
 filetype plugin indent on
-syntax enable
 
 NeoBundleCheck
 "}}}
@@ -786,7 +784,7 @@ if v:version >= 703
   " For conceal.
   set conceallevel=2 concealcursor=iv
 
-  set colorcolumn=79
+  set colorcolumn=80
 endif
 
 " tree-style filer
@@ -817,7 +815,7 @@ augroup END
 "-----------------------------------------------------------------------------
 " syntax:"{{{1
 
-set autoindent smartindent
+set autoindent cindent
 
 augroup MyAutoCmd
   " Auto reload VimScript.
@@ -905,7 +903,7 @@ if has('gui_running')
   endif
 
   if s:is_windows
-    set transparency=220
+    set transparency=250
     set lines=58
     set columns=180
     set guifont=Osaka-Mono\ for\ Powerline:h11
