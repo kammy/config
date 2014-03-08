@@ -183,6 +183,11 @@ else
   hi SpecialKey ctermbg=none
 endif
 "}}}
+NeoBundle 'gcmt/wildfire.vim' " {{{2
+
+let g:wildfire_water_map = '<S-Enter>'
+let g:wildfire_objects = ["i'", 'i"', 'i)', 'i]', 'i}', 'ip', 'it', 'i>']
+
 " end of plugins {{{1
 
 filetype plugin indent on
