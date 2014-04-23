@@ -224,6 +224,8 @@ nnoremap <silent> [unite]f :<C-u>UniteWithBufferDir -buffer-name=files file<CR>
 nnoremap <silent> [unite]h :<C-u>Unite file_mru -buffer-name=file_mru<CR>
 "バッファ一覧
 nnoremap <silent> [unite]b :<C-u>Unite buffer<CR>
+"バッファ一覧(タブ)
+nnoremap <silent> [unite]t :<C-u>Unite buffer_tab<CR>
 "yank履歴
 nnoremap <silent> [unite]y :<C-u>Unite history/yank<CR>
 
@@ -995,10 +997,6 @@ nnoremap gk k
 nnoremap <silent><Space>b :bp<CR>
 " next buffer
 nnoremap <silent><Space>n :bn<CR>
-
-" Map Y to act like D and C, i.e. to yank until EOL, rather than act as yy,
-" which is the default
-nnoremap Y y$
 
 " Tab operations {{{2
 nnoremap [Tab] <Nop>
